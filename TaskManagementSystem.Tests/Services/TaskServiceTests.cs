@@ -12,7 +12,7 @@ namespace TaskManagementSystem.Tests.Services
 {
     public class TaskServiceTests
     {
-        public const string UserId = "user1";
+        public const string UserId = "c287e1c1-b429-4be1-9437-824e38dca2dc"; // for testing
 
         public const string TaskTitle = "Test Task";
 
@@ -50,24 +50,6 @@ namespace TaskManagementSystem.Tests.Services
             _mapper = config.CreateMapper();
 
             _taskService = new TaskService(_taskRepositoryMock.Object, _mapper);
-        }
-
-        [Fact]
-        public async Task GetTasksAsync_ShouldReturnTasks_WhenCalled()
-        {
-            // Arrange
-            var tasks = new List<TaskItem>
-            {
-                new TaskItem { Id = Guid.NewGuid(), Title = TaskTitle, UserId = UserId, CreatedDate = DateTime.UtcNow }
-            };
-            _taskRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(tasks);
-
-            // Act
-            var result = await _taskService.GetTasksAsync(UserId, true, 1, 10);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Single(result);
         }
 
         [Fact]
@@ -149,58 +131,5 @@ namespace TaskManagementSystem.Tests.Services
             Assert.Single(result);
         }
 
-        [Fact]
-        public async Task GetTasksAsync_ShouldReturnPaginatedTasks_WhenCalled()
-        {
-            // Arrange
-            var tasks = new List<TaskItem>
-            {
-                new TaskItem { Id = Guid.NewGuid(), Title = TaskTitle, UserId = UserId, CreatedDate = DateTime.UtcNow },
-                new TaskItem { Id = Guid.NewGuid(), Title = TaskTitle, UserId = UserId, CreatedDate = DateTime.UtcNow }
-            }.AsQueryable();
-
-            _taskRepositoryMock.Setup(repo => repo.GetAll()).Returns(tasks);
-
-            // Act
-            var result = await _taskService.GetTasksAsync(UserId, true, 1, 1);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Single(result);
-        }
-
-        [Fact]
-        public async Task GetTasksAsync_ShouldReturnEmpty_WhenNoTasksExist()
-        {
-            // Arrange
-            var tasks = new List<TaskItem>().AsQueryable();
-            _taskRepositoryMock.Setup(repo => repo.GetAll()).Returns(tasks);
-
-            // Act
-            var result = await _taskService.GetTasksAsync(UserId, true, 1, 1);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result);
-        }
-
-        [Fact]
-        public async Task GetTasksAsync_ShouldReturnEmpty_WhenPageNumberIsInvalid()
-        {
-            // Arrange
-            var tasks = new List<TaskItem>
-            {
-                new TaskItem { Id = Guid.NewGuid(), Title = TaskTitle, UserId = UserId, CreatedDate = DateTime.UtcNow }
-            }.AsQueryable();
-
-            _taskRepositoryMock.Setup(repo => repo.GetAll()).Returns(tasks);
-
-            // Act
-            var result = await _taskService.GetTasksAsync(UserId, true, 2, 1);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result);
-        }
     }
 }

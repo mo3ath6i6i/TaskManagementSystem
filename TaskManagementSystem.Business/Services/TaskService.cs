@@ -24,7 +24,7 @@ namespace TaskManagementSystem.Business.Services
             _mapper = mapper;
         }
 
-        private IQueryable<TaskItem> RetrieveTasks(string userId, bool isAdmin)
+        private IQueryable<TaskItem> RetrieveTasksOld(string userId, bool isAdmin)
         {
             return isAdmin ? _taskRepository.GetAll() : _taskRepository.GetAll().Where(t => t.UserId == userId);
         }
@@ -39,9 +39,26 @@ namespace TaskManagementSystem.Business.Services
             };
         }
 
-        private async Task<IEnumerable<TaskDto>> PaginateTasksAsync(IQueryable<TaskItem> tasks, int page, int pageSize)
+        private async Task<IEnumerable<TaskDto>> PaginateTasksOldAsync(IQueryable<TaskItem> tasks, int page, int pageSize)
         {
             var pagedTasks = await tasks.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            return _mapper.Map<IEnumerable<TaskDto>>(pagedTasks);
+        }
+
+
+        private IQueryable<TaskItem> RetrieveTasks(string userId, bool isAdmin)
+        {
+            // Ensure the IQueryable is from EF Core and not materialized prematurely
+            var query = _taskRepository.GetAll(); // This should be IQueryable from EF
+            return isAdmin ? query : query.Where(t => t.UserId == userId);
+        }
+
+        private async Task<IEnumerable<TaskDto>> PaginateTasksAsync(IQueryable<TaskItem> tasks, int page, int pageSize)
+        {
+            var pagedTasks = await tasks
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(); 
             return _mapper.Map<IEnumerable<TaskDto>>(pagedTasks);
         }
 
